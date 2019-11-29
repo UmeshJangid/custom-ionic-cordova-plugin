@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PersonalizeMe</string>
+    <string name="launcher_name">@string/app_name</string>
+    <string name="activity_name">@string/launcher_name</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="returned_from_app_settings_to_activity">Please allow all Permission.</string>
+    <string name="rationale_location_contacts">Provide External Storage Permission</string>
+</resources>
