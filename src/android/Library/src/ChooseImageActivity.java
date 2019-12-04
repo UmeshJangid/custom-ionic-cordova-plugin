@@ -34,7 +34,7 @@ public class ChooseImageActivity extends AppCompatActivity implements IMethodCal
     ViewPager viewPager;
     // PagerSlidingTabStrip tabs;
     TabLayout tabLayout;
-    TextView textViewImageCount,textViewPrice;
+    TextView textViewImageCount, textViewPrice;
     TabsPagerAdapter tabsPagerAdapter;
     Button buttonSubmit;
     private MyPagerAdapter adapter;
@@ -44,16 +44,55 @@ public class ChooseImageActivity extends AppCompatActivity implements IMethodCal
     //  private SystemBarTintManager mTintManager;
     private static final String TAG = "ChooseImageActivity";
     public static Set<String> imagesPathSet;
-    public static int countImages=0;
+    public static int countImages = 0;
     private FakeR fakeR;
+
+    public static final int NOLIMIT = -1;
+    public static final String MAX_IMAGES_KEY = "MAX_IMAGES";
+    public static final String QUALITY_KEY = "QUALITY";
+    public static final String PRICE_KEY = "PRICE";
+    public static final String COLOR_KEY = "COLOR";
+    public static final String TITLE_KEY = "TITLE";
+    public static final String BUTTON_TEXT_KEY = "BUTTON_TEXT_KEY";
+    public static final String OUTPUT_TYPE_KEY = "OUTPUT_TYPE";
+
+
+    private int maxImages;
+    public static int maxImageCount = 0;
+    private int desiredWidth;
+    private int desiredHeight;
+    private int price = 0;
+    private String bgcolor;
+    private String btnText;
+    private String toolbarTitle;
+    public static int quality;
+
+
+    private MultiImageChooserActivity.OutputType outputType;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fakeR = new FakeR(this);
         setContentView(fakeR.getId("layout", "activity_choose_image"));
-       // setContentView(R.layout.activity_choose_image);
+        // setContentView(R.layout.activity_choose_image);
         imageFolderDetails = getPicturePaths();
         imagesPathSet = new HashSet<>();
+        try {
+            maxImages = getIntent().getIntExtra(MAX_IMAGES_KEY, NOLIMIT);
+            quality = getIntent().getIntExtra(QUALITY_KEY, 20);
+            price = getIntent().getIntExtra(PRICE_KEY, 0);
+            bgcolor = getIntent().getStringExtra(COLOR_KEY);
+            toolbarTitle = getIntent().getStringExtra(TITLE_KEY);
+            btnText = getIntent().getStringExtra(BUTTON_TEXT_KEY);
+            maxImageCount = maxImages;
+            // maxImageCount =4;
+            outputType = MultiImageChooserActivity.OutputType.fromValue(getIntent().getIntExtra(OUTPUT_TYPE_KEY, 0));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
        /* for (ImageFolderDetail imageFolderDetail : imageFolderDetails
         ) {
             Log.e(TAG, imageFolderDetail.getFolderName() + ", Path :" + imageFolderDetail.getPath());
@@ -65,6 +104,20 @@ public class ChooseImageActivity extends AppCompatActivity implements IMethodCal
         textViewPrice = (TextView) findViewById(R.id.priceTileslabel);
         toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar);
         //    tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        // Title Set
+        if (toolbarTitle != null && toolbarTitle.length() > 0) {
+            toolbar.setTitle(toolbarTitle);
+        }
+        //Button Text
+        if (btnText != null && btnText.length() > 0) {
+            buttonSubmit.setText(btnText);
+        }
+        // Price text
+        if (price > 0) {
+            String pound = "\u00a3";
+            textViewPrice.setText("GBP " + pound + "" + price);
+        }
+
         tabLayout = (TabLayout) findViewById(R.id.tabs_new);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -81,7 +134,7 @@ public class ChooseImageActivity extends AppCompatActivity implements IMethodCal
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-              //  Toast.makeText(ChooseImageActivity.this, "Tab selected: " + tab.getPosition(), Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(ChooseImageActivity.this, "Tab selected: " + tab.getPosition(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -105,13 +158,13 @@ public class ChooseImageActivity extends AppCompatActivity implements IMethodCal
                         @Override
                         public void alertDialogCallback(String callback) {
                             // Go to
-                            if(callback.equals("1")) {
+                            if (callback.equals("1")) {
                                 for (String e : imagesPathSet
                                 ) {
                                     Log.e("Selected Images", e);
                                 }
                                 Intent dataIntent = new Intent();
-                                if(imagesPathSet.size()>0){
+                                if (imagesPathSet.size() > 0) {
                                     Bundle res = new Bundle();
                                     ArrayList<String> list = new ArrayList<String>(imagesPathSet);
                                     res.putStringArrayList("MULTIPLEFILENAMES", list);
@@ -119,7 +172,7 @@ public class ChooseImageActivity extends AppCompatActivity implements IMethodCal
                                     int sync = ResultIPC.get().setLargeData(res);
                                     dataIntent.putExtra("bigdata:synccode", sync);
                                     setResult(RESULT_OK, dataIntent);
-                                }else{
+                                } else {
                                     Bundle res = new Bundle();
                                     res.putString("ERRORMESSAGE", "No Image Selected");
                                     dataIntent.putExtras(res);
@@ -129,7 +182,6 @@ public class ChooseImageActivity extends AppCompatActivity implements IMethodCal
                             }
                         }
                     });
-
 
 
                 } else {
@@ -169,6 +221,7 @@ public class ChooseImageActivity extends AppCompatActivity implements IMethodCal
                 tabsPagerAdapter.addFragment(fragment, imageFolderDetail.getFolderName());
                 Log.e(TAG, imageFolderDetail.getFolderName() + ", Path :" + imageFolderDetail.getPath());
             }
+
         } else {
             Utils.showToast(ChooseImageActivity.this, "Something went wrong.");
         }
@@ -237,8 +290,8 @@ public class ChooseImageActivity extends AppCompatActivity implements IMethodCal
 
     @Override
     public void yourDesiredMethod(int count) {
-        Log.e(TAG, "yourDesiredMethod: "+count );
-        textViewImageCount.setText(ChooseImageActivity.imagesPathSet.size()+ " Image selected");
+        Log.e(TAG, "yourDesiredMethod: " + count);
+        textViewImageCount.setText(ChooseImageActivity.imagesPathSet.size() + " Image selected");
     }
 
 

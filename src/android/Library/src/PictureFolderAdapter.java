@@ -2,6 +2,7 @@ package com.synconset;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,7 +71,7 @@ public class PictureFolderAdapter extends RecyclerView.Adapter<PictureFolderAdap
         holder.folderPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (selected) {
+                if (folder.getSelected()) {
                     holder.folderimageTick.setVisibility(View.GONE);
                     selected = false;
                     folder.setSelected(false);
@@ -86,64 +87,75 @@ public class PictureFolderAdapter extends RecyclerView.Adapter<PictureFolderAdap
                         ((IMethodCaller) folderContx).yourDesiredMethod(ChooseImageActivity.countImages);
                     }
                 } else {
-                    long lengthOfFileinKb = 0;
-                            if(folder.getPicturName()!=null && folder.getPicturName().length()>0) {
-                                lengthOfFileinKb=    Utils.checkFileSize(folder.getPicturePath() + "/" + folder.getPicturName());
-                            }else{
-                                //All Photos case
-                             lengthOfFileinKb=   Utils.checkFileSize(folder.getPicturePath());
+                    if (ChooseImageActivity.maxImageCount > ChooseImageActivity.countImages) {
+                        long lengthOfFileinKb = 0;
+                        if (folder.getPicturName() != null && folder.getPicturName().length() > 0) {
+                            lengthOfFileinKb = Utils.checkFileSize(folder.getPicturePath() + "/" + folder.getPicturName());
+                        } else {
+                            //All Photos case
+                            lengthOfFileinKb = Utils.checkFileSize(folder.getPicturePath());
+                        }
+                        if (lengthOfFileinKb > ChooseImageActivity.quality) {
+                            selected = true;
+                            holder.folderimageTick.setVisibility(View.VISIBLE);
+                            folder.setSelected(true);
+                            // Add that value in list
+                            if (android.os.Build.VERSION.SDK_INT >= 16) {
+                                holder.folderPic.setImageAlpha(128);
+                            } else {
+                                holder.folderPic.setAlpha(128);
                             }
-                            if(lengthOfFileinKb>20){
-                                selected = true;
-                                holder.folderimageTick.setVisibility(View.VISIBLE);
-                                folder.setSelected(true);
-                                // Add that value in list
-                                if (android.os.Build.VERSION.SDK_INT >= 16) {
-                                    holder.folderPic.setImageAlpha(128);
-                                } else {
-                                    holder.folderPic.setAlpha(128);
-                                }
-                                holder.frameLayout.setBackgroundColor(selectedColor);
-                                listenToClick.onPicClicked(folder.getPicturePath(), folder.getPicturName());
-                                ChooseImageActivity.imagesPathSet.add(folder.getPicturePath());
-                                ChooseImageActivity.countImages++;
-                                if (folderContx instanceof IMethodCaller) {
-                                    ((IMethodCaller) folderContx).yourDesiredMethod(ChooseImageActivity.countImages);
-                                }
-                            }else{
-                                Utils.askForInput(folderContx, "Low Quality Image!", "Please select a good quality image!\n(Note: Image should be greater than 20 kb).", "Don't Select", "Select Anyway", false, new AlertDialogCallback<String>() {
-                                    @Override
-                                    public void alertDialogCallback(String callback) {
-                                        if(callback=="1"){
-                                            //Case : Don't Select
-                                            // Simple Dialog close
-                                        }else{
-                                            // Add that image to array
-                                            selected = true;
-                                            holder.folderimageTick.setVisibility(View.VISIBLE);
-                                            folder.setSelected(true);
-                                            // Add that value in list
-                                            if (android.os.Build.VERSION.SDK_INT >= 16) {
-                                                holder.folderPic.setImageAlpha(128);
-                                            } else {
-                                                holder.folderPic.setAlpha(128);
-                                            }
-                                            holder.frameLayout.setBackgroundColor(selectedColor);
-                                            listenToClick.onPicClicked(folder.getPicturePath(), folder.getPicturName());
-                                            ChooseImageActivity.imagesPathSet.add(folder.getPicturePath());
-                                            ChooseImageActivity.countImages++;
-                                            if (folderContx instanceof IMethodCaller) {
-                                                ((IMethodCaller) folderContx).yourDesiredMethod(ChooseImageActivity.countImages);
-                                            }
+                            holder.frameLayout.setBackgroundColor(selectedColor);
+                            listenToClick.onPicClicked(folder.getPicturePath(), folder.getPicturName());
+                            ChooseImageActivity.imagesPathSet.add(folder.getPicturePath());
+                            ChooseImageActivity.countImages++;
+                            if (folderContx instanceof IMethodCaller) {
+                                ((IMethodCaller) folderContx).yourDesiredMethod(ChooseImageActivity.countImages);
+                            }
+                        } else {
+                            Utils.askForInput(folderContx, "Low Quality Image!", "Please select a good quality image!\n(Note: Image should be greater than 20 kb).", "Don't Select", "Select Anyway", false, new AlertDialogCallback<String>() {
+                                @Override
+                                public void alertDialogCallback(String callback) {
+                                    if (callback == "1") {
+                                        //Case : Don't Select
+                                        // Simple Dialog close
+                                    } else {
+                                        // Add that image to array
+                                        selected = true;
+                                        holder.folderimageTick.setVisibility(View.VISIBLE);
+                                        folder.setSelected(true);
+                                        // Add that value in list
+                                        if (android.os.Build.VERSION.SDK_INT >= 16) {
+                                            holder.folderPic.setImageAlpha(128);
+                                        } else {
+                                            holder.folderPic.setAlpha(128);
+                                        }
+                                        holder.frameLayout.setBackgroundColor(selectedColor);
+                                        listenToClick.onPicClicked(folder.getPicturePath(), folder.getPicturName());
+                                        ChooseImageActivity.imagesPathSet.add(folder.getPicturePath());
+                                        ChooseImageActivity.countImages++;
+                                        if (folderContx instanceof IMethodCaller) {
+                                            ((IMethodCaller) folderContx).yourDesiredMethod(ChooseImageActivity.countImages);
                                         }
                                     }
-                                });
-                            }
+                                }
+                            });
+                        }
+                    }  else {
+                    Utils.askForInput(folderContx, "Alert!", "Max image select count reached.Default Image count is " + ChooseImageActivity.maxImageCount, "Ok", "Cancel", true, new AlertDialogCallback<String>() {
+                        @Override
+                        public void alertDialogCallback(String callback) {
+
+                        }
+                    });
+
+                    Log.d("Onclick", "onClick: " + ChooseImageActivity.maxImageCount + " , " + ChooseImageActivity.countImages);
+                }
 
                 }
             }
-        });
 
+        });
     }
 
     private int selectedColor = 0xff32b2e1;

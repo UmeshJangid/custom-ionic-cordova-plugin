@@ -20,8 +20,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 
 public class ImagePicker extends CordovaPlugin {
 
@@ -47,20 +49,40 @@ public class ImagePicker extends CordovaPlugin {
         } else if (ACTION_GET_PICTURES.equals(action)) {
             final JSONObject params = args.getJSONObject(0);
             final Intent imagePickerIntent = new Intent(cordova.getActivity(), ChooseImageActivity.class);
-            int max = 20;
+            int max = 15;
             int desiredWidth = 0;
             int desiredHeight = 0;
-            int quality = 100;
+            int quality = 0;
             int outputType = 0;
+            int price = 0;
+            String btnText ="";
+            String color ="";
+            String title ="";
+
+
+         /*   public static final String QUALITY_KEY = "QUALITY";
+            public static final String PRICE_KEY = "PRICE";
+            public static final String COLOR_KEY = "COLOR";
+            public static final String TITLE_KEY = "TITLE";
+            public static final String BUTTON_TEXT_KEY = "BUTTON_TEXT_KEY";*/
+
             if (params.has("maximumImagesCount")) {
                 max = params.getInt("maximumImagesCount");
             }
-            if (params.has("width")) {
-                desiredWidth = params.getInt("width");
+            if (params.has("price")) {
+                price = params.getInt("price");
             }
-            if (params.has("height")) {
-                desiredHeight = params.getInt("height");
+            if (params.has("btnText")) {
+                btnText = params.getString("btnText");
             }
+
+            if (params.has("title")) {
+                title = params.getString("title");
+            }
+            if (params.has("color")) {
+                color = params.getString("color");
+            }
+
             if (params.has("quality")) {
                 quality = params.getInt("quality");
             }
@@ -69,8 +91,10 @@ public class ImagePicker extends CordovaPlugin {
             }
 
             imagePickerIntent.putExtra("MAX_IMAGES", max);
-            imagePickerIntent.putExtra("WIDTH", desiredWidth);
-            imagePickerIntent.putExtra("HEIGHT", desiredHeight);
+            imagePickerIntent.putExtra("PRICE", price);
+            imagePickerIntent.putExtra("COLOR", color);
+            imagePickerIntent.putExtra("TITLE", title);
+            imagePickerIntent.putExtra("BUTTON_TEXT_KEY", btnText);
             imagePickerIntent.putExtra("QUALITY", quality);
             imagePickerIntent.putExtra("OUTPUT_TYPE", outputType);
 
@@ -105,6 +129,7 @@ public class ImagePicker extends CordovaPlugin {
     @SuppressLint("InlinedApi")
     private boolean hasReadPermission() {
         return Build.VERSION.SDK_INT < 23 ||
+
             PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this.cordova.getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE);
     }
 
