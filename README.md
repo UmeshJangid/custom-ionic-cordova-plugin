@@ -38,8 +38,15 @@ window.imagePicker.getPictures(
     }, function (error) {
         console.log('Error: ' + error);
     }, {
-        maximumImagesCount: 10,
-        width: 800
+        // Options
+          // if no title is passed, the plugin should use a some default
+          maximumImagesCount: 10,
+          price: 10,
+          color:"#ffffff" ,//Hex Code
+          title:"App Title: Select Picture",
+          buttonText:"Select Picture",
+          imageQuality: 20, // Min 20 Kb 
+          outputType: imagePicker.OutputType.BASE64_STRING
     }
 );
 ```
