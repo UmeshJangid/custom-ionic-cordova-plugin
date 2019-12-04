@@ -29,7 +29,7 @@
             app:tabTextColor="#090104"
             app:tabIndicatorColor="@color/colorPrimary"
             app:tabSelectedTextColor="@color/colorPrimary"
-            app:tabMode="fixed" />
+            app:tabMode="scrollable" />
 
 
         <androidx.viewpager.widget.ViewPager
